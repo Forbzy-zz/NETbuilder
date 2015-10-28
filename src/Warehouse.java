@@ -1,13 +1,19 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 
 import java.io.*;
 
@@ -22,36 +28,31 @@ public class Warehouse extends JFrame {
 
 	private JFrame mainFrame;
 	private JTabbedPane jTabbedPane;
-	private Panel tabbedPaneProduct, tabbedPaneOrder, tabbedPanePInfo,
-			tabbedPaneOInfo;
+	private Panel tabbedPaneProduct, tabbedPaneOrder, tabbedPanePInfo, tabbedPaneOInfo;
 
-	private JButton mProductDetailsButton, mOrderDetailsButton, nextPButton,
-			nextOButton, backPButton, backOButton, findProdButton;
+	private JButton mProductDetailsButton, mOrderDetailsButton, nextPButton, nextOButton, backPButton, backOButton,
+			findProdButton;
 
-	private JTextField productID, productName, stockLevels, porousStockLevel,
-			price, location, porousNeed, porousApplied, dateManufactured;
+	private JTextField productID, productName, stockLevels, porousStockLevel, price, location, porousNeed,
+			porousApplied, dateManufactured;
 
 	private JTextField orderID, orderDate, quantity, orderType, totalCost;
 
 	public static AccessDB db;
 
-	private String storeID, storeName, storeLoc, storePrice, storePSL, storeSL,
-			storePNeed, storePApplied, storeDate, oID;
+	private String storeID, storeName, storeLoc, storePrice, storePSL, storeSL, storePNeed, storePApplied, storeDate,
+			oID;
 
 	private JTextField inputOID;
 
-	private String storeOrderID, storeOrderDate, storeQuantity, storeOrderType,
-			storeTotal;
+	private String storeOrderID, storeOrderDate, storeQuantity, storeOrderType, storeTotal;
 
-	private JPanel labelPanel1, textPanel1, labelPanel2, textPanel2,
-			labelPanel3, textPanel3, labelPanel4, textPanel4, labelPanel5,
-			textPanel5, labelPanel6, textPanel6;
+	private JPanel labelPanel1, textPanel1, labelPanel2, textPanel2, labelPanel3, textPanel3, labelPanel4, textPanel4,
+			labelPanel5, textPanel5, labelPanel6, textPanel6;
 
-	private JLabel idLabel, nameLabel, slLabel, pslLabel, pLabel, locLabel,
-			pnLabel, paLabel, dMLabel;
+	private JLabel idLabel, nameLabel, slLabel, pslLabel, pLabel, locLabel, pnLabel, paLabel, dMLabel;
 
-	private JLabel idLabelV, nameLabelV, slLabelV, pslLabelV, pLabelV,
-			locLabelV, pnLabelV, paLabelV, dMLabelV;
+	private JLabel idLabelV, nameLabelV, slLabelV, pslLabelV, pLabelV, locLabelV, pnLabelV, paLabelV, dMLabelV;
 
 	private JLabel oIDLabel, oDLabel, qLabel, oTLabel, tLabel;
 
@@ -61,24 +62,19 @@ public class Warehouse extends JFrame {
 
 	int[] arrayOrderID = new int[1000];
 
-	Object[] column = { "ID: ", "Name: ", "Stock Levels: ",
-			"Porous Stock Level: ", "Price: ", "Location: ", "Porous Needed: ",
-			"Porous Applied: ", "Date Manufactured: " };
+	Object[] column = { "ID: ", "Name: ", "Stock Levels: ", "Porous Stock Level: ", "Price: ", "Location: ",
+			"Porous Needed: ", "Porous Applied: ", "Date Manufactured: " };
 	Object[][] data = {};
 
-	OrderDetails Order;
-	orderLine Line;
-	Product Prod;
-
-	JTable[] table = new JTable[2];
-
-	JScrollPane jpane[] = new JScrollPane[2];
+	OrderDetails order;
+	orderLine line;
+	Product prod;
 
 	public Warehouse() {
 
-		Order = new OrderDetails();
-		Line = new orderLine();
-		Prod = new Product();
+		order = new OrderDetails();
+		line = new orderLine();
+		prod = new Product();
 
 		mainFrame = new JFrame("Warehouse Order Tracking System");
 
@@ -160,7 +156,7 @@ public class Warehouse extends JFrame {
 		totalCost = new JTextField(10);
 
 		inputOID = new JTextField(10);
-		
+
 		/*
 		 * mainFrame.addWindowListener(new WindowAdapter() { public void
 		 * windowClosing(WindowEvent windowEvent) { System.exit(0); } });
@@ -195,7 +191,6 @@ public class Warehouse extends JFrame {
 		tabbedPaneOrder.add(textPanel2, BorderLayout.EAST);
 
 		textPanel2.add(orderID);
-		textPanel2.add(productID);
 		textPanel2.add(orderDate);
 		textPanel2.add(quantity);
 		textPanel2.add(orderType);
@@ -203,9 +198,9 @@ public class Warehouse extends JFrame {
 
 		tabbedPaneOrder.add(mOrderDetailsButton);
 
-		//Prod.viewProductDetails();
+		// Prod.viewProductDetails();
 
-		tabbedPanePInfo.add(Prod.createTable());// adds Product Table to GUI
+		tabbedPanePInfo.add(prod.createTable());// adds Product Table to GUI
 
 		// tabbedPanePInfo.add(labelPanel3, BorderLayout.WEST);
 		// tabbedPanePInfo.add(labelPanel4, BorderLayout.EAST);
@@ -223,17 +218,16 @@ public class Warehouse extends JFrame {
 		tabbedPanePInfo.add(nextPButton);
 		tabbedPanePInfo.add(backPButton);
 
-		Order.viewOrderDetails();
-		
+		order.viewOrderDetails();
+
 		tabbedPaneOInfo.add(inputOID);
 		tabbedPaneOInfo.add(findProdButton);
-		tabbedPaneOInfo.add(Order.createTable());
+		tabbedPaneOInfo.add(order.createTable());
 
 		// tabbedPaneOInfo.add(labelPanel5, BorderLayout.WEST);
 		// tabbedPaneOInfo.add(labelPanel6, BorderLayout.EAST);
 
 		labelPanel6.add(oIDLabelV);
-		labelPanel6.add(idLabelV);
 		labelPanel6.add(oDLabelV);
 		labelPanel6.add(qLabelV);
 		labelPanel6.add(oTLabelV);
@@ -250,7 +244,7 @@ public class Warehouse extends JFrame {
 		findProdButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				oID = inputOID.getText();
-				Line.viewOrderLineResults(oID);
+				line.viewOrderLineResults(oID);
 			}
 		});
 
@@ -267,19 +261,25 @@ public class Warehouse extends JFrame {
 				storeDate = dateManufactured.getText();
 
 				createProduct();
+
 			}
 		});
 
 		mOrderDetailsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				storeOrderID = orderID.getText();
-				storeID = productID.getText();
 				storeOrderDate = orderDate.getText();
 				storeQuantity = quantity.getText();
 				storeOrderType = orderType.getText();
 				storeTotal = totalCost.getText();
 
 				createOrder();
+
+				tabbedPaneOInfo.remove(order.getJPane());
+				order.viewOrderDetails();
+				tabbedPaneOInfo.add(order.createTable());
+				tabbedPaneOInfo.revalidate();
+				System.out.println(e);
 			}
 		});
 
@@ -289,7 +289,6 @@ public class Warehouse extends JFrame {
 
 	public void tabsOnFocus(ChangeEvent e) {
 		int selectedIndex = jTabbedPane.getSelectedIndex();
-		System.out.println("Default Index:" + selectedIndex);
 
 		if (selectedIndex == 0) {
 			labelPanel1.add(idLabel);
@@ -304,7 +303,6 @@ public class Warehouse extends JFrame {
 		}
 		if (selectedIndex == 1) {
 			labelPanel2.add(oIDLabel);
-			labelPanel2.add(idLabel);
 			labelPanel2.add(oDLabel);
 			labelPanel2.add(qLabel);
 			labelPanel2.add(oTLabel);
@@ -323,7 +321,6 @@ public class Warehouse extends JFrame {
 		}
 		if (selectedIndex == 3) {
 			labelPanel5.add(oIDLabel);
-			labelPanel5.add(idLabel);
 			labelPanel5.add(oDLabel);
 			labelPanel5.add(qLabel);
 			labelPanel5.add(oTLabel);
@@ -343,38 +340,42 @@ public class Warehouse extends JFrame {
 		Statement stmt = null;
 
 		try {
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
 			System.out.println("Creating statement...");
 			stmt = conn.createStatement();
-			String sql3 = "UPDATE Languages "
-					+ "SET date = 1994 WHERE id in (1, 2)";
+			String sql3 = "UPDATE Languages " + "SET date = 1994 WHERE id in (1, 2)";
 			stmt.executeUpdate(sql3);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 
-	void modifyOrderDetails() {
+	static void modifyOrderDetails(Object value, int row, int col) {
 		Connection conn = null;
 		Statement stmt = null;
+		String[] columnNames = new String[] { "orderID", "oderDate", "quantity", "orderType", "totalCost" };
+		String[] rowNames = new String[]{};
 
-		System.out.println("Creating statement...");
+		for(int i = 0; i<1000; i++){
+			rowNames[i] = String.valueOf(i);
+		}
+		
+		System.out.println("Modifying Order");
 		try {
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
 			stmt = conn.createStatement();
-			String sql3 = "UPDATE Languages "
-					+ "SET date = 1994 WHERE id in (1, 2)";
+			String sql3 = "UPDATE orderdetails " + "SET " + columnNames[col] + 
+					" = " + value + " FROM orderdetails( SELECT " + columnNames[col] + 
+					", ROW_NUMBER() OVER (ORDER BY " + columnNames[col] + ") AS rowNum)" +
+				    " WHERE rowNum = " + rowNames[row];
+			
 			stmt.executeUpdate(sql3);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println("Order Modified");
 
 	}
 
@@ -385,12 +386,9 @@ public class Warehouse extends JFrame {
 
 		System.out.println("Inserting records into the table...");
 		try {
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
 			stmt = conn.createStatement();
-			String values = "VALUES (" + storeOrderID + "," + storeID + ","
-					+ storeOrderDate + "," + storeQuantity + ",' "
+			String values = "VALUES (" + storeOrderID + "," + storeOrderDate + "," + storeQuantity + ",' "
 					+ storeOrderType + " ' ," + storeTotal + " )";
 			String sql = "INSERT INTO orderdetails " + values;
 			stmt.executeUpdate(sql);
@@ -409,14 +407,11 @@ public class Warehouse extends JFrame {
 		System.out.println("Inserting records into the table...");
 
 		try {
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
 			stmt = conn.createStatement();
-			String values = "VALUES (" + storeID + ", ' " + storeName + " ', "
-					+ storeSL + ", " + storePSL + ", " + storePrice + ", ' "
-					+ storeLoc + "' , '" + storePNeed + "', '" + storePApplied
-					+ "', " + storeDate + ")";
+			String values = "VALUES (" + storeID + ", ' " + storeName + " ', " + storeSL + ", " + storePSL + ", "
+					+ storePrice + ", ' " + storeLoc + "' , '" + storePNeed + "', '" + storePApplied + "', " + storeDate
+					+ ")";
 
 			String sql = "INSERT INTO product " + values;
 			stmt.executeUpdate(sql);
@@ -434,9 +429,7 @@ public class Warehouse extends JFrame {
 		System.out.println("Creating statement...");
 
 		try {
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
 			stmt = conn.createStatement();
 			String sql4 = "DELETE FROM OrderDetails " + "WHERE orderID = 1";
 			stmt.executeUpdate(sql4);
@@ -453,9 +446,7 @@ public class Warehouse extends JFrame {
 		System.out.println("Creating statement...");
 
 		try {
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
 			stmt = conn.createStatement();
 			String sql4 = "DELETE FROM Product " + "WHERE productID = 1";
 			stmt.executeUpdate(sql4);
@@ -492,6 +483,6 @@ class tabOnFocus implements ChangeListener {
 		// TODO Auto-generated method stub
 		w.tabsOnFocus(e);
 		Object source = e.getSource();
-		System.out.println("sourse:  " + source);
+
 	};
 }

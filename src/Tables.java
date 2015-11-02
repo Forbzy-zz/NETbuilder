@@ -17,18 +17,14 @@ public class Tables {
 	protected Object[][] data = {};
 	JTable table = new JTable();
 	JScrollPane jpane = new JScrollPane();
-	 private TableModel model;
+	private TableModel model;
 
 	public Tables() {
-		
-		
-		
 	}
 
 	public JScrollPane createTable() {
 		table = new JTable(data, column) {
-			public Component prepareRenderer(TableCellRenderer r, int rIndex,
-					int cIndex) {
+			public Component prepareRenderer(TableCellRenderer r, int rIndex, int cIndex) {
 				if (cIndex == 1) {
 					setFont(new Font("Arial", Font.BOLD, 12));
 				} else {
@@ -37,24 +33,21 @@ public class Tables {
 				return super.prepareRenderer(r, rIndex, cIndex);
 			}
 		};
-		
+
 		table.getModel().addTableModelListener(new TableModelListener() {
-		
+
 			public void tableChanged(TableModelEvent e) {
 				int row = e.getFirstRow();
 				int col = e.getColumn();
-
+				int rowID = table.getSelectedRow();
 				Object value = getValueAt(row, col);
-				System.out.println("value "+value);
-				Warehouse.modifyOrderDetails(value, row, col);
-				setValueAt(value, row, col);
-				System.out.println(e);
+				Warehouse.modifyOrderDetails(value, rowID, col);
 			}
 		});
-		
+
 		return jpane = new JScrollPane(table);
 	}
-	
+
 	public JScrollPane getJPane() {
 		return jpane;
 	}
@@ -62,7 +55,7 @@ public class Tables {
 	public JTable getJTable() {
 		return table;
 	}
-	
+
 	public int getColumnCount() {
 		return column.length;
 	}
@@ -95,15 +88,4 @@ public class Tables {
 			return true;
 		}
 	}
-
-	/*
-	 * Don't need to implement this method unless your table's data can change.
-	 */
-	public void setValueAt(Object value, int row, int col) {
-		data[row][col] = value;
-		((AbstractTableModel) model).fireTableCellUpdated(row, col);
-		
-		System.out.println("it works");
-	}
-
 }

@@ -3,7 +3,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Scanner;
 
 public class orderLine {
 	int orderID;
@@ -40,12 +39,11 @@ public class orderLine {
 			int count = 0;
 			while (rs.next()) {
 				
-				id = String.valueOf(rs.getInt("id"));
 				oid = String.valueOf(rs.getString("orderID"));
 				pid = String.valueOf(rs.getInt("productID"));
 				q = String.valueOf(rs.getString("quantity"));
 
-				System.out.println("ID: " + id + ", OrderID: " + oid
+				System.out.println( "OrderID: " + oid
 						+ ", Product ID: " + pid + " Quantity: " + q);
 				arrayPID[count] = pid;
 						count++;
@@ -58,7 +56,7 @@ public class orderLine {
 
 			int j = in.nextInt();
 */
-			prod.viewProductDetails(arrayPID);
+			//prod.viewProductDetails(arrayPID);
 
 			// rs.close();
 		} catch (SQLException e) {

@@ -6,21 +6,13 @@ import java.sql.Statement;
 import java.util.Scanner;
 
 public class OrderDetails extends Tables {
-	int orderID;
-	int productID;
-	int orderDate;
-	int day;
-	int month;
-	int year;
-	int quantity;
-	boolean orderType;
-	int totalCost;
-	private String oT, oid, oD, q, tC;
+
+	private String oid, oD, oS, tC;
 
 	orderLine Line;
 
 	OrderDetails() {
-		column = new Object[]{ "OrderID ", "Order Date", "Quantity","Order Type", "Total Cost" };
+		column = new Object[]{ "OrderID ", "Order Date",  "Order Status", "Total Cost",  };
 		Line = new orderLine();
         
 	}
@@ -45,7 +37,7 @@ public class OrderDetails extends Tables {
 
 			rs.last();
 			int numberOfRows = rs.getRow();
-			data = new Object[numberOfRows][5];
+			data = new Object[numberOfRows][4];
 			System.out.println("numbers " + numberOfRows);
 			rs.beforeFirst();
 
@@ -53,29 +45,18 @@ public class OrderDetails extends Tables {
 			while (rs.next()) {
 				oid = String.valueOf(rs.getInt("orderID"));
 				oD = String.valueOf(rs.getInt("orderDate"));
-				q = String.valueOf(rs.getInt("quantity"));
-				oT = rs.getString("orderType");
+				oS = rs.getString("orderStatus");
 				tC = String.valueOf(rs.getDouble("totalCost"));
 				
 				System.out.println("ID: " + oid + ", OrderDate: " + oD
-						+ ", Quantity: " + q + ", OrderType: " + oT
-						+ ", TotalCost: £" + tC);
+						 + ", Order Status: " + oS + ", TotalCost: £" + tC );
 
-				data[count] = new Object[] { oid, oD, q, oT, tC };
+				data[count] = new Object[] { oid, oD, oS, tC };
 				count++;
 			}
 			
 			createTable();
-			/*
-			System.out.println("No more records");
-
-			System.out.print("Enter Order ID:");
-			Scanner in = new Scanner(System.in);
-
-			int i = in.nextInt();
-
-			Line.viewOrderLineResults(i);
-*/
+			
 			rs.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -93,8 +74,8 @@ public class OrderDetails extends Tables {
 	void calculateTotalPrice() {
 	}
 
-	boolean updateStock() {
-		return orderType;
+	void updateStock() {
+		
 	};
 
 	void checkOrderType() {

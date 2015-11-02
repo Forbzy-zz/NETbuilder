@@ -5,96 +5,94 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
 
-public class Product extends Tables{
+public class Product extends Tables {
 
-	private int productID;
-	private String productName;
 	private int stockLevels;
 	private int porousStockLevel;
 	private double price;
 	private String location;
-	private boolean porousNeed;
-	private boolean porousApplied;
-	private int dateManufactured;
-	private String assignedToOrder;// 0 means its on an order already, 1 means
-									// it isn't
-	private int day;
-	private int month;
-	private int year;
 
-	private String n, l, pn, pa, dm, pid, sl, p, psl, ato;
+	private String n, l, pn, pa, dm, pid, sl, p, psl, asl, apsl, ato;
 
 	orderLine Line;
 
 	Product() {
-		column = new Object[]{ "ID ", "Name ", "Stock Levels ",
-			"Porous Stock Level ", "Price ", "Location ", "Porous Needed ",
-			"Porous Applied ", "Date Manufactured "};
+		/*
+		 * column = new Object[]{ "ID ", "Name ", "Available Stock ",
+		 * "Allocated Stock ", "Available Porous Stock ",
+		 * "Allocated Porous Stock ", "Price ", "Location ", "Porous Needed ",
+		 * };
+		 */
+		column = new Object[] { "ID ", "Name ", "Quantity", "Porous Quantity", "Price ", "Location ",
+				"Porous Needed " };
 	}
 
-	void viewProductDetails(String[] list) {
+	void viewProductDetails(int OID) {
 		Connection conn = null;
 		Statement stmt = null;
 		ResultSet rs = null;
-
+		ResultSet rs2 = null;
 		try {
 			System.out.println("Creating statement...");
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
 			stmt = conn.createStatement();
-			String sql2 = "SELECT * FROM product WHERE productID in (";
-			String string = list[0];
-			for(int i = 1; i < list.length; i++) {
-				string += ", " + list[i] ; 
-				
-				System.out.println("list "+list[i]);
+			String sql1 = "SELECT productID FROM orderline WHERE orderID = " + OID;
+			String sql3 = "SELECT quantity  FROM orderline WHERE orderID = " + OID;
+			rs = stmt.executeQuery(sql1);
+			rs2 = stmt.executeQuery(sql3);
+			
+			String sql2 = null;
+			String string = "";
+
+			while (rs.next()) {
+				sql2 = "SELECT productID, productName, price, location, porousNeed FROM product WHERE productID in (";
+				string += rs.getInt("productID") + ",";
+				System.out.println("list " + rs.getInt("productID"));
 			}
-			
-			sql2 += string;
+
+			sql2 += method(string);
 			sql2 += ")";
-			
+
 			System.out.println(sql2);
 			rs = stmt.executeQuery(sql2);
-			
+
 			rs.last();
 			int numberOfRows = rs.getRow();
-			data = new Object[numberOfRows][11];
+			data = new Object[numberOfRows][7];
 			System.out.println("number of row " + numberOfRows);
 			rs.beforeFirst();
-			
+
 			int count = 0;
-			while (rs.next()){
+			while (rs.next()) {
 				pid = String.valueOf(rs.getInt("productID"));
 				n = String.valueOf(rs.getString("productName"));
-				sl = String.valueOf(rs.getInt("stockLevels"));
-				psl = String.valueOf(rs.getString("porousStockLevels"));
 				p = String.valueOf(rs.getInt("price"));
 				l = String.valueOf(rs.getString("location"));
 				pn = String.valueOf(rs.getString("porousNeed"));
-				pa = String.valueOf(rs.getString("porousApplied"));
-				dm = String.valueOf(rs.getInt("dateManufactured"));
-				ato = String.valueOf(rs.getString("assignedToOrder"));
 
-				System.out.println("Product ID: " + pid + " Name: " + n
-						+ " Stock Levels: " + sl + " Porous Stock Levels: "
-						+ psl + " Price: " + p + " Location: " + l
-						+ " Porous Need: " + pn + " Porous Applied: " + pa
-						+ " Date Manufactured: " + dm + " Assigned to order: "
-						+ ato);
-				
-				data[count] = new Object[] { pid, n, sl, psl, p, l, pn, pa, dm, ato };
+				System.out.println("Product ID: " + pid + " Name: " + n + " Available Stock: " + sl
+						+ " Allocated Stock: " + asl + " Available Porous Stock: " + psl + " Allocated Porous Stock: "
+						+ apsl + " Price: " + p + " Location: " + l + " Porous Need: " + pn);
+
+				data[count] = new Object[] { pid, n, p, l, pn };
 				count++;
 			}
-			
+
 			createTable();
-			
+
 			// rs.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("No such orderID in orderLine Table");
 		}
 	};
+
+	public String method(String str) {
+		if (null != str && str.length() > 0) {
+			str = str.substring(0, str.length() - 1);
+		}
+		return str;
+	}
 
 	public void setStockLevels(int value) {
 		this.stockLevels = value;

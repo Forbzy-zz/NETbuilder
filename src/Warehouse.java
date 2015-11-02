@@ -3,6 +3,7 @@ import java.awt.event.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Scanner;
 
 import javax.swing.*;
@@ -17,53 +18,52 @@ import javax.swing.table.TableModel;
 
 import java.io.*;
 
-import javax.swing.JTable;
-
 public class Warehouse extends JFrame {
 	private int ID;
-	// private int productID;
-	// private int quantity;
+
 	private String name;
-	// private int orderID;
 
 	private JFrame mainFrame;
+
 	private JTabbedPane jTabbedPane;
+
 	private Panel tabbedPaneProduct, tabbedPaneOrder, tabbedPanePInfo, tabbedPaneOInfo;
 
-	private JButton mProductDetailsButton, mOrderDetailsButton, nextPButton, nextOButton, backPButton, backOButton,
-			findProdButton;
+	private JButton mProductDetailsButton, mOrderDetailsButton, findProdButton, addProd;
 
-	private JTextField productID, productName, stockLevels, porousStockLevel, price, location, porousNeed,
-			porousApplied, dateManufactured;
+	private JTextField productID, productName, stockLevels, porousStockLevel, aStockLevels, aPorousStockLevel, price,
+			location, porousNeed;
 
-	private JTextField orderID, orderDate, quantity, orderType, totalCost;
+	private JTextField orderID, orderDate;
+
+	private ArrayList<JTextField> item, quantity;
 
 	public static AccessDB db;
 
-	private String storeID, storeName, storeLoc, storePrice, storePSL, storeSL, storePNeed, storePApplied, storeDate,
-			oID;
+	ArrayList<String> storeIDArray;
+	ArrayList<Integer> qList;
 
-	private JTextField inputOID;
+	private String storeID, storeName, storeLoc, storePrice, storePSL, storeSL, storeAPSL, storeASL, storePNeed, oID;
 
-	private String storeOrderID, storeOrderDate, storeQuantity, storeOrderType, storeTotal;
+	private JTextField inputOID, checkOID;
 
-	private JPanel labelPanel1, textPanel1, labelPanel2, textPanel2, labelPanel3, textPanel3, labelPanel4, textPanel4,
-			labelPanel5, textPanel5, labelPanel6, textPanel6;
+	private String storeOrderID, storeOrderDate, storeOrderStatus, storeTotal;
+	ArrayList<Integer> storeQuantity;
 
-	private JLabel idLabel, nameLabel, slLabel, pslLabel, pLabel, locLabel, pnLabel, paLabel, dMLabel;
+	private JPanel labelPanel1, textPanel1, labelPanel2, textPanel2, labelPanel3, textPanel3;
 
-	private JLabel idLabelV, nameLabelV, slLabelV, pslLabelV, pLabelV, locLabelV, pnLabelV, paLabelV, dMLabelV;
+	private JLabel idLabel, nameLabel, slLabel, pslLabel, aslLabel, apslLabel, pLabel, locLabel, pnLabel, paLabel,
+			dMLabel, totalCost;
 
-	private JLabel oIDLabel, oDLabel, qLabel, oTLabel, tLabel;
+	private JLabel oIDLabel, oDLabel, qLabel, tLabel, iLabel;
 
-	private JLabel oIDLabelV, oDLabelV, qLabelV, oTLabelV, tLabelV;
+	int q, c;
 
-	private String n, pls, l, pn, pa, dm, oT, pid, sl, p, oid, oD, q, tC, ato;
-
+	private JComboBox<String> menu;
 	int[] arrayOrderID = new int[1000];
 
-	Object[] column = { "ID: ", "Name: ", "Stock Levels: ", "Porous Stock Level: ", "Price: ", "Location: ",
-			"Porous Needed: ", "Porous Applied: ", "Date Manufactured: " };
+	Object[] column = { "ID: ", "Name: ", "Available Stock: ", "Available Porous Stock: ", "Allocated Stock: ",
+			"Allocated Porous Stock: ", "Price: ", "Location: ", "Porous Needed: " };
 	Object[][] data = {};
 
 	OrderDetails order;
@@ -80,13 +80,10 @@ public class Warehouse extends JFrame {
 
 		jTabbedPane = new JTabbedPane();
 
-		mainFrame.setSize(400, 400);
+		mainFrame.setSize(600, 500);
 		mProductDetailsButton = new JButton("Add Product");
 		mOrderDetailsButton = new JButton("Add Order");
-		nextPButton = new JButton("Next Product");
-		nextOButton = new JButton("Next Order");
-		backPButton = new JButton("Previous Product");
-		backOButton = new JButton("Previous Order");
+		addProd = new JButton("Add Product");
 		findProdButton = new JButton("Order ID");
 
 		labelPanel1 = new JPanel(new GridLayout(9, 1, 4, 8));
@@ -95,72 +92,45 @@ public class Warehouse extends JFrame {
 		textPanel2 = new JPanel(new GridLayout(9, 1, 4, 4));
 		labelPanel3 = new JPanel(new GridLayout(9, 1, 4, 8));
 		textPanel3 = new JPanel(new GridLayout(9, 1, 4, 4));
-		labelPanel4 = new JPanel(new GridLayout(9, 1, 4, 8));
-		textPanel4 = new JPanel(new GridLayout(9, 1, 4, 4));
-		labelPanel5 = new JPanel(new GridLayout(9, 1, 4, 8));
-		textPanel5 = new JPanel(new GridLayout(9, 1, 4, 4));
-		labelPanel6 = new JPanel(new GridLayout(9, 1, 4, 8));
-		textPanel6 = new JPanel(new GridLayout(9, 1, 4, 4));
 
 		//
 		idLabel = new JLabel("ID: ");
 		nameLabel = new JLabel("Name: ");
-		slLabel = new JLabel("Stock Levels: ");
-		pslLabel = new JLabel("Porous Stock Level: ");
+		slLabel = new JLabel("Available Stock: ");
+		pslLabel = new JLabel("Available Porous Stock: ");
+		aslLabel = new JLabel("Allocated Stock: ");
+		apslLabel = new JLabel("Allocated Porous Stock: ");
 		pLabel = new JLabel("Price: ");
 		locLabel = new JLabel("Location: ");
 		pnLabel = new JLabel("Porous Needed: ");
-		paLabel = new JLabel("Porous Applied: ");
-		dMLabel = new JLabel("Date Manufactured: ");
-
-		idLabelV = new JLabel(pid);
-		nameLabelV = new JLabel(name);
-		slLabelV = new JLabel(sl);
-		pslLabelV = new JLabel(pls);
-		pLabelV = new JLabel(p);
-		locLabelV = new JLabel(l);
-		pnLabelV = new JLabel(pn);
-		paLabelV = new JLabel(pa);
-		dMLabelV = new JLabel(dm);
 
 		//
 		oIDLabel = new JLabel("Order ID: ");
 		oDLabel = new JLabel("Date Ordered: ");
-		qLabel = new JLabel("Quantity: ");
-		oTLabel = new JLabel("Order Type: ");
 		tLabel = new JLabel("Total: ");
-
-		oIDLabelV = new JLabel(oid);
-		oDLabelV = new JLabel(oD);
-		qLabelV = new JLabel(q);
-		oTLabelV = new JLabel(oT);
-		tLabelV = new JLabel(tC);
+		iLabel = new JLabel("Items: ");
+		qLabel = new JLabel("Quantity: ");
 
 		// input boxes for the product attributes
 		productID = new JTextField(10);
 		productName = new JTextField(10);
 		stockLevels = new JTextField(10);
+		aStockLevels = new JTextField(10);
 		porousStockLevel = new JTextField(10);
+		aPorousStockLevel = new JTextField(10);
 		price = new JTextField(10);
 		location = new JTextField(10);
 		porousNeed = new JTextField(10);
-		porousApplied = new JTextField(10);
-		dateManufactured = new JTextField(10);
 
 		// input boxes for the order details attributes
-		orderID = new JTextField();
-		// productID = new JTextField();
+		orderID = new JTextField(10);
+		item = new ArrayList<JTextField>();
 		orderDate = new JTextField(10);
-		quantity = new JTextField(10);
-		orderType = new JTextField(10);
-		totalCost = new JTextField(10);
+		totalCost = new JLabel();
+		quantity = new ArrayList<JTextField>();
 
 		inputOID = new JTextField(10);
-
-		/*
-		 * mainFrame.addWindowListener(new WindowAdapter() { public void
-		 * windowClosing(WindowEvent windowEvent) { System.exit(0); } });
-		 */
+		checkOID = new JTextField(10);
 
 		tabbedPaneProduct = new Panel();
 		tabbedPaneOrder = new Panel();
@@ -175,48 +145,55 @@ public class Warehouse extends JFrame {
 		tabbedPaneProduct.add(labelPanel1, BorderLayout.WEST);
 		tabbedPaneProduct.add(textPanel1, BorderLayout.EAST);
 
+		labelPanel1.add(idLabel);
+		labelPanel1.add(nameLabel);
+		labelPanel1.add(slLabel);
+		labelPanel1.add(aslLabel);
+		labelPanel1.add(pslLabel);
+		labelPanel1.add(apslLabel);
+		labelPanel1.add(pLabel);
+		labelPanel1.add(locLabel);
+		labelPanel1.add(pnLabel);
+
 		textPanel1.add(productID);
 		textPanel1.add(productName);
 		textPanel1.add(stockLevels);
+		textPanel1.add(aStockLevels);
 		textPanel1.add(porousStockLevel);
+		textPanel1.add(aPorousStockLevel);
 		textPanel1.add(price);
 		textPanel1.add(location);
 		textPanel1.add(porousNeed);
-		textPanel1.add(porousApplied);
-		textPanel1.add(dateManufactured);
 
 		tabbedPaneProduct.add(mProductDetailsButton);
 
 		tabbedPaneOrder.add(labelPanel2, BorderLayout.WEST);
-		tabbedPaneOrder.add(textPanel2, BorderLayout.EAST);
+		tabbedPaneOrder.add(textPanel2, BorderLayout.CENTER);
+		tabbedPaneOrder.add(labelPanel3, BorderLayout.CENTER);
+		tabbedPaneOrder.add(textPanel3, BorderLayout.EAST);
+
+		labelPanel2.add(oIDLabel);
+		labelPanel2.add(oDLabel);
+		labelPanel2.add(tLabel);
+		labelPanel2.add(iLabel);
+		labelPanel3.add(qLabel);
 
 		textPanel2.add(orderID);
 		textPanel2.add(orderDate);
-		textPanel2.add(quantity);
-		textPanel2.add(orderType);
 		textPanel2.add(totalCost);
+		JTextField itemField = new JTextField(10);
+		item.add(itemField);
+		textPanel2.add(itemField);
+		JTextField quantityField = new JTextField(10);
+		quantity.add(quantityField);
+		textPanel3.add(quantityField);
+
+		tabbedPaneOrder.add(addProd);
 
 		tabbedPaneOrder.add(mOrderDetailsButton);
 
-		// Prod.viewProductDetails();
-
+		tabbedPanePInfo.setSize(600, 500);
 		tabbedPanePInfo.add(prod.createTable());// adds Product Table to GUI
-
-		// tabbedPanePInfo.add(labelPanel3, BorderLayout.WEST);
-		// tabbedPanePInfo.add(labelPanel4, BorderLayout.EAST);
-
-		labelPanel4.add(idLabelV);
-		labelPanel4.add(nameLabelV);
-		labelPanel4.add(slLabelV);
-		labelPanel4.add(pslLabelV);
-		labelPanel4.add(pLabelV);
-		labelPanel4.add(locLabelV);
-		labelPanel4.add(pnLabelV);
-		labelPanel4.add(paLabelV);
-		labelPanel4.add(dMLabelV);
-
-		tabbedPanePInfo.add(nextPButton);
-		tabbedPanePInfo.add(backPButton);
 
 		order.viewOrderDetails();
 
@@ -224,27 +201,21 @@ public class Warehouse extends JFrame {
 		tabbedPaneOInfo.add(findProdButton);
 		tabbedPaneOInfo.add(order.createTable());
 
-		// tabbedPaneOInfo.add(labelPanel5, BorderLayout.WEST);
-		// tabbedPaneOInfo.add(labelPanel6, BorderLayout.EAST);
-
-		labelPanel6.add(oIDLabelV);
-		labelPanel6.add(oDLabelV);
-		labelPanel6.add(qLabelV);
-		labelPanel6.add(oTLabelV);
-		labelPanel6.add(tLabelV);
-
-		tabbedPaneOInfo.add(nextOButton);
-		tabbedPaneOInfo.add(backOButton);
-
 		mainFrame.add(jTabbedPane);
-
 		mainFrame.setVisible(true);
-		mainFrame.setSize(500, 500);
+		mainFrame.setResizable(false);
 
 		findProdButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				oID = inputOID.getText();
 				line.viewOrderLineResults(oID);
+
+				tabbedPanePInfo.remove(prod.getJPane());
+				prod.viewProductDetails(Integer.valueOf(oID));
+				tabbedPanePInfo.add(prod.createTable());
+				tabbedPanePInfo.revalidate();
+				System.out.println(e);
+
 			}
 		});
 
@@ -253,15 +224,14 @@ public class Warehouse extends JFrame {
 				storeID = productID.getText();
 				storeName = productName.getText();
 				storeSL = stockLevels.getText();
-				storePSL = porousStockLevel.getText();
+				storeASL = aStockLevels.getText();
+				storeAPSL = porousStockLevel.getText();
+				storePSL = aPorousStockLevel.getText();
 				storePrice = price.getText();
 				storeLoc = location.getText();
 				storePNeed = porousNeed.getText();
-				storePApplied = porousApplied.getText();
-				storeDate = dateManufactured.getText();
 
 				createProduct();
-
 			}
 		});
 
@@ -269,63 +239,47 @@ public class Warehouse extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				storeOrderID = orderID.getText();
 				storeOrderDate = orderDate.getText();
-				storeQuantity = quantity.getText();
-				storeOrderType = orderType.getText();
 				storeTotal = totalCost.getText();
+				
+				checkStock(item, quantity);
+				if (Collections.min(qList) <= 0) {// if there is a zero in this
+													// array do this
+					totalCost.setText("");
+					System.out.println("stock not available");
+				} else {
+					calculateCost(item, quantity);
+				/*	updateOrderLineTable(storeOrderID, item, quantity);
+					createOrder();// adds data to orderDetails table in the
+									// database
 
-				createOrder();
-
-				tabbedPaneOInfo.remove(order.getJPane());
-				order.viewOrderDetails();
-				tabbedPaneOInfo.add(order.createTable());
-				tabbedPaneOInfo.revalidate();
-				System.out.println(e);
+					tabbedPaneOInfo.remove(order.getJPane());
+					order.viewOrderDetails();
+					tabbedPaneOInfo.add(order.createTable());
+					tabbedPaneOInfo.revalidate();
+					System.out.println(e);*/
+				}
 			}
 		});
 
-		jTabbedPane.addChangeListener(new tabOnFocus(this));
+		addProd.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				labelPanel2.add(new JLabel("Items: "));
+				labelPanel2.validate();
+				labelPanel3.add(new JLabel("Quantity: "));
+				labelPanel3.validate();
 
-	}
+				JTextField itemField = new JTextField(10);
+				item.add(itemField);
+				textPanel2.add(itemField);
+				textPanel2.validate();
 
-	public void tabsOnFocus(ChangeEvent e) {
-		int selectedIndex = jTabbedPane.getSelectedIndex();
+				JTextField quantityField = new JTextField(10);
+				quantity.add(quantityField);
+				textPanel3.add(quantityField);
+				textPanel3.validate();
 
-		if (selectedIndex == 0) {
-			labelPanel1.add(idLabel);
-			labelPanel1.add(nameLabel);
-			labelPanel1.add(slLabel);
-			labelPanel1.add(pslLabel);
-			labelPanel1.add(pLabel);
-			labelPanel1.add(locLabel);
-			labelPanel1.add(pnLabel);
-			labelPanel1.add(paLabel);
-			labelPanel1.add(dMLabel);
-		}
-		if (selectedIndex == 1) {
-			labelPanel2.add(oIDLabel);
-			labelPanel2.add(oDLabel);
-			labelPanel2.add(qLabel);
-			labelPanel2.add(oTLabel);
-			labelPanel2.add(tLabel);
-		}
-		if (selectedIndex == 2) {
-			labelPanel3.add(idLabel);
-			labelPanel3.add(nameLabel);
-			labelPanel3.add(slLabel);
-			labelPanel3.add(pslLabel);
-			labelPanel3.add(pLabel);
-			labelPanel3.add(locLabel);
-			labelPanel3.add(pnLabel);
-			labelPanel3.add(paLabel);
-			labelPanel3.add(dMLabel);
-		}
-		if (selectedIndex == 3) {
-			labelPanel5.add(oIDLabel);
-			labelPanel5.add(oDLabel);
-			labelPanel5.add(qLabel);
-			labelPanel5.add(oTLabel);
-			labelPanel5.add(tLabel);
-		}
+			}
+		});
 	}
 
 	public static void main(String[] args) {
@@ -335,15 +289,102 @@ public class Warehouse extends JFrame {
 		db.accessBD();
 	}
 
-	void modifyProductDetails() {
+	public int calculateCost(ArrayList<JTextField> ID, ArrayList<JTextField> quantity) {
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet price = null;
+
+		int c = 0;
+
+		System.out.println("Calculating cost");
+		try {
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
+			stmt = conn.createStatement();
+
+			for (int i = 0; i < ID.size(); i++) {
+
+				String sql3 = "SELECT  price FROM product WHERE productID = " + ID.get(i).getText();
+				price = stmt.executeQuery(sql3);
+
+				price.next();
+				c += price.getInt("price") * Integer.parseInt(quantity.get(i).getText());
+				totalCost.setText("£" + String.valueOf(c));
+				System.out.println("£" + String.valueOf(c));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Cost Calculated = £" + c);
+		return c;
+	}
+
+	public ArrayList<Integer> checkStock(ArrayList<JTextField> ID, ArrayList<JTextField> quantity) {
+
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet stockLevels = null;
+
+		qList = new ArrayList<Integer>();
+
+		System.out.println("Modifying Order");
+		try {
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
+			stmt = conn.createStatement();
+
+			for (int i = 0; i < ID.size(); i++) {
+
+				String sql3 = "SELECT  availableStock FROM product WHERE productID = " + ID.get(i).getText();
+
+				stockLevels = stmt.executeQuery(sql3);
+
+				stockLevels.next();
+
+				q = stockLevels.getInt("availableStock") - Integer.parseInt(quantity.get(i).getText());
+				qList.add(q);
+				System.out.println("ID  " + ID.get(i).getText());
+				System.out.println("Quantity  " + quantity.get(i).getText());
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Order Modified " + q);
+		return qList;
+	}
+
+	public void updateOrderLineTable(String orderID, ArrayList<JTextField> item, ArrayList<JTextField> quantity2) {
 		Connection conn = null;
 		Statement stmt = null;
 
+		System.out.println("Adding products to Order Line Table");
+		try {
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
+			stmt = conn.createStatement();
+
+			for (int i = 0; i < item.size(); i++) {
+
+				String values = "VALUES (" + orderID + " , " + item.get(i).getText() + " , "
+						+ quantity2.get(i).getText() + " )";
+				String sql = "INSERT INTO orderline " + values;
+				stmt.executeUpdate(sql);
+				System.out.println("Products added to Order Line Table");
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	void modifyProductDetails(Object value, int id2, int col) {
+		Connection conn = null;
+		Statement stmt = null;
+		String[] columnNames = new String[] { "orderID", "orderDate", "orderStatus", "totalCost" };
 		try {
 			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
 			System.out.println("Creating statement...");
 			stmt = conn.createStatement();
-			String sql3 = "UPDATE Languages " + "SET date = 1994 WHERE id in (1, 2)";
+			String sql3 = "UPDATE product " + "SET date = 1994 WHERE id in (1, 2)";
 			stmt.executeUpdate(sql3);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -351,25 +392,17 @@ public class Warehouse extends JFrame {
 		}
 	}
 
-	static void modifyOrderDetails(Object value, int row, int col) {
+	static void modifyOrderDetails(Object value, int id2, int col) {
 		Connection conn = null;
 		Statement stmt = null;
-		String[] columnNames = new String[] { "orderID", "oderDate", "quantity", "orderType", "totalCost" };
-		String[] rowNames = new String[]{};
+		String[] columnNames = new String[] { "orderID", "orderDate", "orderStatus", "totalCost" };
 
-		for(int i = 0; i<1000; i++){
-			rowNames[i] = String.valueOf(i);
-		}
-		
 		System.out.println("Modifying Order");
 		try {
 			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
 			stmt = conn.createStatement();
-			String sql3 = "UPDATE orderdetails " + "SET " + columnNames[col] + 
-					" = " + value + " FROM orderdetails( SELECT " + columnNames[col] + 
-					", ROW_NUMBER() OVER (ORDER BY " + columnNames[col] + ") AS rowNum)" +
-				    " WHERE rowNum = " + rowNames[row];
-			
+			String sql3 = "UPDATE orderdetails " + "SET " + columnNames[col] + " = " + value + " WHERE orderID = "
+					+ id2;
 			stmt.executeUpdate(sql3);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -384,15 +417,15 @@ public class Warehouse extends JFrame {
 		Connection conn = null;
 		Statement stmt = null;
 
-		System.out.println("Inserting records into the table...");
+		System.out.println("Creating new Stock Order");
 		try {
 			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
 			stmt = conn.createStatement();
-			String values = "VALUES (" + storeOrderID + "," + storeOrderDate + "," + storeQuantity + ",' "
-					+ storeOrderType + " ' ," + storeTotal + " )";
+			String values = "VALUES (" + storeOrderID + " , " + storeOrderDate + " , " + storeOrderStatus + " , "
+					+ storeTotal + " )";
 			String sql = "INSERT INTO orderdetails " + values;
 			stmt.executeUpdate(sql);
-			System.out.println("Inserted records into the table...");
+			System.out.println("Stock Order Created");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -409,9 +442,8 @@ public class Warehouse extends JFrame {
 		try {
 			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
 			stmt = conn.createStatement();
-			String values = "VALUES (" + storeID + ", ' " + storeName + " ', " + storeSL + ", " + storePSL + ", "
-					+ storePrice + ", ' " + storeLoc + "' , '" + storePNeed + "', '" + storePApplied + "', " + storeDate
-					+ ")";
+			String values = "VALUES (" + storeID + ", ' " + storeName + " ', " + storeSL + ", " + storeASL + ", "
+					+ storePSL + ", " + storeAPSL + ", " + storePrice + ", ' " + storeLoc + "' , '" + storePNeed + ")";
 
 			String sql = "INSERT INTO product " + values;
 			stmt.executeUpdate(sql);
@@ -455,34 +487,4 @@ public class Warehouse extends JFrame {
 			e.printStackTrace();
 		}
 	}
-
-	void next() {
-
-	}
-
-	void back() {
-	}
-
-	void checkStockLevels() {
-	};
-
-	void checkPorousStockLevels() {
-	}
-
-}
-
-class tabOnFocus implements ChangeListener {
-	private Warehouse w;
-
-	tabOnFocus(Warehouse adaptee) {
-		w = adaptee;
-	}
-
-	@Override
-	public void stateChanged(ChangeEvent e) {
-		// TODO Auto-generated method stub
-		w.tabsOnFocus(e);
-		Object source = e.getSource();
-
-	};
 }

@@ -12,19 +12,13 @@ public class Product extends Tables {
 	private double price;
 	private String location;
 
-	private String n, l, pn, pa, dm, pid, sl, p, psl, asl, apsl, ato;
+	private String n, l, pn, pa, dm, pid, sl, p, psl, asl, apsl, q, pQ;
 
 	orderLine Line;
 
 	Product() {
-		/*
-		 * column = new Object[]{ "ID ", "Name ", "Available Stock ",
-		 * "Allocated Stock ", "Available Porous Stock ",
-		 * "Allocated Porous Stock ", "Price ", "Location ", "Porous Needed ",
-		 * };
-		 */
-		column = new Object[] { "ID ", "Name ", "Quantity", "Porous Quantity", "Price ", "Location ",
-				"Porous Needed " };
+		column = new Object[] { "ID ", "Name ", "Price ", "Location ",
+				"Porous Needed ", "Quantity", "Porous Quantity" };
 	}
 
 	void viewProductDetails(int OID) {
@@ -34,50 +28,74 @@ public class Product extends Tables {
 		ResultSet rs2 = null;
 		try {
 			System.out.println("Creating statement...");
-			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
+			conn = DriverManager
+					.getConnection("jdbc:mysql://localhost/wotsdatabase",
+							"root", "NETbuilder");
+
 			stmt = conn.createStatement();
-			String sql1 = "SELECT productID FROM orderline WHERE orderID = " + OID;
-			String sql3 = "SELECT quantity  FROM orderline WHERE orderID = " + OID;
+			String sql1 = "SELECT productID, quantity, porousQuantity FROM orderline WHERE orderID = "
+					+ OID;
+
 			rs = stmt.executeQuery(sql1);
-			rs2 = stmt.executeQuery(sql3);
-			
-			String sql2 = null;
-			String string = "";
-
-			while (rs.next()) {
-				sql2 = "SELECT productID, productName, price, location, porousNeed FROM product WHERE productID in (";
-				string += rs.getInt("productID") + ",";
-				System.out.println("list " + rs.getInt("productID"));
-			}
-
-			sql2 += method(string);
-			sql2 += ")";
-
-			System.out.println(sql2);
-			rs = stmt.executeQuery(sql2);
 
 			rs.last();
 			int numberOfRows = rs.getRow();
 			data = new Object[numberOfRows][7];
 			System.out.println("number of row " + numberOfRows);
 			rs.beforeFirst();
+			System.out.println("woerking 1");
 
-			int count = 0;
+			String sql2 = null;
+			String string = "";
+			String sql4 = null;
+			String strings = "";
+
+			int count1 = 0;
 			while (rs.next()) {
-				pid = String.valueOf(rs.getInt("productID"));
-				n = String.valueOf(rs.getString("productName"));
-				p = String.valueOf(rs.getInt("price"));
-				l = String.valueOf(rs.getString("location"));
-				pn = String.valueOf(rs.getString("porousNeed"));
+				sql2 = "SELECT productID, productName, price, location, porousNeed FROM product WHERE productID in (";
+				string += rs.getInt("productID") + ",";
 
-				System.out.println("Product ID: " + pid + " Name: " + n + " Available Stock: " + sl
-						+ " Allocated Stock: " + asl + " Available Porous Stock: " + psl + " Allocated Porous Stock: "
-						+ apsl + " Price: " + p + " Location: " + l + " Porous Need: " + pn);
+				System.out.println("list " + rs.getInt("productID"));
+				q = String.valueOf(rs.getString("quantity"));
+				pQ = String.valueOf(rs.getString("porousQuantity"));
 
-				data[count] = new Object[] { pid, n, p, l, pn };
-				count++;
+				System.out.println(pQ);
+
+				data[count1][5] = q;
+				data[count1][6] = pQ;
+				count1++;
 			}
 
+			sql2 += method(string);
+			sql2 += ")";
+
+			System.out.println("woerking 1");
+
+			System.out.println(sql2);
+			rs2 = stmt.executeQuery(sql2);
+
+			int count2 = 0;
+			while (rs2.next()) {
+				pid = String.valueOf(rs2.getInt("productID"));
+				n = String.valueOf(rs2.getString("productName"));
+				p = String.valueOf(rs2.getInt("price"));
+				l = String.valueOf(rs2.getString("location"));
+				pn = String.valueOf(rs2.getString("porousNeed"));
+
+				System.out.println("Product ID: " + pid + " Name: " + n
+						+ " Available Stock: " + sl + " Allocated Stock: "
+						+ asl + " Available Porous Stock: " + psl
+						+ " Allocated Porous Stock: " + apsl + " Price: " + p
+						+ " Location: " + l + " Porous Need: " + pn);
+
+				data[count2][0] = pid;
+				data[count2][1] = n;
+				data[count2][2] = p;
+				data[count2][3] = l;
+				data[count2][4] = pn;
+				count2++;
+			}
+			System.out.println("woerking 3 " + data[0]);
 			createTable();
 
 			// rs.close();
@@ -93,37 +111,5 @@ public class Product extends Tables {
 		}
 		return str;
 	}
-
-	public void setStockLevels(int value) {
-		this.stockLevels = value;
-	};
-
-	public int getStockLevels() {
-		return this.stockLevels;
-	};
-
-	public void setPorousStockLevels(int value) {
-		this.porousStockLevel = value;
-	};
-
-	public int getPorousStockLevels() {
-		return this.porousStockLevel;
-	};
-
-	public void setPrice(double value) {
-		this.price = value;
-	};
-
-	public double getPrice() {
-		return this.price;
-	};
-
-	public void setLocation(String value) {
-		this.location = value;
-	};
-
-	public String getLocation() {
-		return this.location;
-	};
 
 }

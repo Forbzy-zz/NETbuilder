@@ -19,7 +19,7 @@ public class Tables {
 	JScrollPane jpane = new JScrollPane();
 	private TableModel model;
 
-	public Tables() {
+	public Tables(){
 	}
 
 	public JScrollPane createTable() {
@@ -37,15 +37,18 @@ public class Tables {
 		table.getModel().addTableModelListener(new TableModelListener() {
 
 			public void tableChanged(TableModelEvent e) {
-				int row = e.getFirstRow();
 				int col = e.getColumn();
 				int rowID = table.getSelectedRow();
-				Object value = getValueAt(row, col);
+				Object value = getValueAt(rowID, col);
+				System.out.println("value changed to " +value);
 				Warehouse.modifyOrderDetails(value, rowID, col);
 			}
 		});
 
-		return jpane = new JScrollPane(table);
+		jpane = new JScrollPane(table);
+		jpane.setSize(400, 200);
+		jpane.revalidate();
+		return jpane;
 	}
 
 	public JScrollPane getJPane() {
@@ -76,16 +79,5 @@ public class Tables {
 		return getValueAt(0, c).getClass();
 	}
 
-	/*
-	 * Don't need to implement this method unless your table's editable.
-	 */
-	public boolean isCellEditable(int row, int col) {
-		// Note that the data/cell address is constant,
-		// no matter where the cell appears onscreen.
-		if (col < 2) {
-			return false;
-		} else {
-			return true;
-		}
-	}
+
 }

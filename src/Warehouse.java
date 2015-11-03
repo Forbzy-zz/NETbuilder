@@ -27,12 +27,14 @@ public class Warehouse extends JFrame {
 
 	private JTabbedPane jTabbedPane;
 
-	private Panel tabbedPaneProduct, tabbedPaneOrder, tabbedPanePInfo, tabbedPaneOInfo;
+	private Panel tabbedPaneProduct, tabbedPaneOrder, tabbedPanePInfo,
+			tabbedPaneOInfo;
 
-	private JButton mProductDetailsButton, mOrderDetailsButton, findProdButton, addProd;
+	private JButton mProductDetailsButton, mOrderDetailsButton, findProdButton,
+			addProd, delProd, delOrder;
 
-	private JTextField productID, productName, stockLevels, porousStockLevel, aStockLevels, aPorousStockLevel, price,
-			location, porousNeed;
+	private JTextField productID, productName, stockLevels, porousStockLevel,
+			aStockLevels, aPorousStockLevel, price, location, porousNeed;
 
 	private JTextField orderID, orderDate;
 
@@ -43,17 +45,19 @@ public class Warehouse extends JFrame {
 	ArrayList<String> storeIDArray;
 	ArrayList<Integer> qList;
 
-	private String storeID, storeName, storeLoc, storePrice, storePSL, storeSL, storeAPSL, storeASL, storePNeed, oID;
+	private String storeID, storeName, storeLoc, storePrice, storePSL, storeSL,
+			storeAPSL, storeASL, storePNeed, oID;
 
 	private JTextField inputOID, checkOID;
 
 	private String storeOrderID, storeOrderDate, storeOrderStatus, storeTotal;
 	ArrayList<Integer> storeQuantity;
 
-	private JPanel labelPanel1, textPanel1, labelPanel2, textPanel2, labelPanel3, textPanel3;
+	private JPanel labelPanel1, textPanel1, labelPanel2, textPanel2,
+			labelPanel3, textPanel3;
 
-	private JLabel idLabel, nameLabel, slLabel, pslLabel, aslLabel, apslLabel, pLabel, locLabel, pnLabel, paLabel,
-			dMLabel, totalCost;
+	private JLabel idLabel, nameLabel, slLabel, pslLabel, aslLabel, apslLabel,
+			pLabel, locLabel, pnLabel, paLabel, dMLabel, totalCost;
 
 	private JLabel oIDLabel, oDLabel, qLabel, tLabel, iLabel;
 
@@ -62,29 +66,38 @@ public class Warehouse extends JFrame {
 	private JComboBox<String> menu;
 	int[] arrayOrderID = new int[1000];
 
-	Object[] column = { "ID: ", "Name: ", "Available Stock: ", "Available Porous Stock: ", "Allocated Stock: ",
-			"Allocated Porous Stock: ", "Price: ", "Location: ", "Porous Needed: " };
+	Object[] column = { "ID: ", "Name: ", "Available Stock: ",
+			"Available Porous Stock: ", "Allocated Stock: ",
+			"Allocated Porous Stock: ", "Price: ", "Location: ",
+			"Porous Needed: " };
+
 	Object[][] data = {};
 
 	OrderDetails order;
 	orderLine line;
 	Product prod;
+	AllProductInfo allProdInfo;
+
+	private JLabel l1, l2, l3, l4, l5, l6;
 
 	public Warehouse() {
 
 		order = new OrderDetails();
 		line = new orderLine();
 		prod = new Product();
+		allProdInfo = new AllProductInfo();
 
 		mainFrame = new JFrame("Warehouse Order Tracking System");
 
 		jTabbedPane = new JTabbedPane();
 
-		mainFrame.setSize(600, 500);
+		mainFrame.setSize(600, 800);
 		mProductDetailsButton = new JButton("Add Product");
 		mOrderDetailsButton = new JButton("Add Order");
 		addProd = new JButton("Add Product");
 		findProdButton = new JButton("Order ID");
+		delProd = new JButton("Delete Product");
+		delOrder = new JButton("Delete Order");
 
 		labelPanel1 = new JPanel(new GridLayout(9, 1, 4, 8));
 		textPanel1 = new JPanel(new GridLayout(9, 1, 4, 4));
@@ -137,6 +150,13 @@ public class Warehouse extends JFrame {
 		tabbedPanePInfo = new Panel();
 		tabbedPaneOInfo = new Panel();
 
+		l1 = new JLabel("");
+		l2 = new JLabel("");
+		l3 = new JLabel("");
+		l4 = new JLabel("");
+		l5 = new JLabel("");
+		l6 = new JLabel("");
+
 		jTabbedPane.addTab("Add Product", tabbedPaneProduct);
 		jTabbedPane.addTab("Add Order", tabbedPaneOrder);
 		jTabbedPane.addTab("Product Information", tabbedPanePInfo);
@@ -166,6 +186,7 @@ public class Warehouse extends JFrame {
 		textPanel1.add(porousNeed);
 
 		tabbedPaneProduct.add(mProductDetailsButton);
+		tabbedPaneProduct.add(delProd);
 
 		tabbedPaneOrder.add(labelPanel2, BorderLayout.WEST);
 		tabbedPaneOrder.add(textPanel2, BorderLayout.CENTER);
@@ -176,6 +197,10 @@ public class Warehouse extends JFrame {
 		labelPanel2.add(oDLabel);
 		labelPanel2.add(tLabel);
 		labelPanel2.add(iLabel);
+
+		labelPanel3.add(l1);
+		labelPanel3.add(l2);
+		labelPanel3.add(l3);
 		labelPanel3.add(qLabel);
 
 		textPanel2.add(orderID);
@@ -184,6 +209,10 @@ public class Warehouse extends JFrame {
 		JTextField itemField = new JTextField(10);
 		item.add(itemField);
 		textPanel2.add(itemField);
+
+		textPanel3.add(l4);
+		textPanel3.add(l5);
+		textPanel3.add(l6);
 		JTextField quantityField = new JTextField(10);
 		quantity.add(quantityField);
 		textPanel3.add(quantityField);
@@ -192,30 +221,68 @@ public class Warehouse extends JFrame {
 
 		tabbedPaneOrder.add(mOrderDetailsButton);
 
-		tabbedPanePInfo.setSize(600, 500);
-		tabbedPanePInfo.add(prod.createTable());// adds Product Table to GUI
+		tabbedPaneOrder.add(delOrder);
 
 		order.viewOrderDetails();
+
+		allProdInfo.viewProductDetails();
+
+		tabbedPanePInfo.add(allProdInfo.createTable());
 
 		tabbedPaneOInfo.add(inputOID);
 		tabbedPaneOInfo.add(findProdButton);
 		tabbedPaneOInfo.add(order.createTable());
 
+		tabbedPaneOInfo.add(prod.createTable());// adds Product Table to GUI
+
 		mainFrame.add(jTabbedPane);
 		mainFrame.setVisible(true);
 		mainFrame.setResizable(false);
+
+		delProd.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				storeID = productID.getText();
+				removeProduct(storeID);
+
+				tabbedPanePInfo.remove(allProdInfo.getJPane());
+				allProdInfo.viewProductDetails();
+				tabbedPanePInfo.add(allProdInfo.createTable());
+				tabbedPanePInfo.revalidate();
+			}
+		});
+
+		delOrder.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				storeOrderID = orderID.getText();
+				removeOrder(storeOrderID);
+
+				tabbedPaneOInfo.remove(order.getJPane());
+				order.viewOrderDetails();
+				tabbedPaneOInfo.add(order.createTable());
+				tabbedPaneOInfo.revalidate();
+
+				tabbedPaneOInfo.remove(prod.getJPane());
+
+				tabbedPaneOInfo.add(prod.createTable());
+				tabbedPaneOInfo.revalidate();
+			}
+		});
 
 		findProdButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				oID = inputOID.getText();
 				line.viewOrderLineResults(oID);
 
-				tabbedPanePInfo.remove(prod.getJPane());
+				tabbedPaneOInfo.remove(prod.getJPane());
 				prod.viewProductDetails(Integer.valueOf(oID));
-				tabbedPanePInfo.add(prod.createTable());
-				tabbedPanePInfo.revalidate();
+				tabbedPaneOInfo.add(prod.createTable());
+				tabbedPaneOInfo.revalidate();
 				System.out.println(e);
 
+				tabbedPaneOInfo.remove(prod.getJPane());
+
+				tabbedPaneOInfo.add(prod.createTable());
+				tabbedPaneOInfo.revalidate();
 			}
 		});
 
@@ -232,6 +299,11 @@ public class Warehouse extends JFrame {
 				storePNeed = porousNeed.getText();
 
 				createProduct();
+				tabbedPanePInfo.remove(allProdInfo.getJPane());
+				allProdInfo.viewProductDetails();
+				tabbedPanePInfo.add(allProdInfo.createTable());
+				tabbedPanePInfo.revalidate();
+
 			}
 		});
 
@@ -240,23 +312,33 @@ public class Warehouse extends JFrame {
 				storeOrderID = orderID.getText();
 				storeOrderDate = orderDate.getText();
 				storeTotal = totalCost.getText();
-				
+
 				checkStock(item, quantity);
 				if (Collections.min(qList) <= 0) {// if there is a zero in this
 													// array do this
 					totalCost.setText("");
 					System.out.println("stock not available");
 				} else {
-					calculateCost(item, quantity);
-				/*	updateOrderLineTable(storeOrderID, item, quantity);
+allocate(item, quantity);
+					updateOrderLineTable(storeOrderID, item, quantity);
+					
 					createOrder();// adds data to orderDetails table in the
 									// database
 
+					calculateCost(item, quantity);
+					
 					tabbedPaneOInfo.remove(order.getJPane());
 					order.viewOrderDetails();
+
 					tabbedPaneOInfo.add(order.createTable());
 					tabbedPaneOInfo.revalidate();
-					System.out.println(e);*/
+					System.out.println(e);
+
+					tabbedPaneOInfo.remove(prod.getJPane());
+
+					tabbedPaneOInfo.add(prod.createTable());
+					tabbedPaneOInfo.revalidate();
+
 				}
 			}
 		});
@@ -267,6 +349,8 @@ public class Warehouse extends JFrame {
 				labelPanel2.validate();
 				labelPanel3.add(new JLabel("Quantity: "));
 				labelPanel3.validate();
+
+				calculateCost(item, quantity);
 
 				JTextField itemField = new JTextField(10);
 				item.add(itemField);
@@ -289,7 +373,8 @@ public class Warehouse extends JFrame {
 		db.accessBD();
 	}
 
-	public int calculateCost(ArrayList<JTextField> ID, ArrayList<JTextField> quantity) {
+	public int calculateCost(ArrayList<JTextField> ID,
+			ArrayList<JTextField> quantity) {
 		Connection conn = null;
 		Statement stmt = null;
 		ResultSet price = null;
@@ -298,28 +383,34 @@ public class Warehouse extends JFrame {
 
 		System.out.println("Calculating cost");
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
+			conn = DriverManager
+					.getConnection("jdbc:mysql://localhost/wotsdatabase",
+							"root", "NETbuilder");
 			stmt = conn.createStatement();
 
 			for (int i = 0; i < ID.size(); i++) {
 
-				String sql3 = "SELECT  price FROM product WHERE productID = " + ID.get(i).getText();
+				String sql3 = "SELECT  price FROM product WHERE productID = "
+						+ ID.get(i).getText();
 				price = stmt.executeQuery(sql3);
 
 				price.next();
-				c += price.getInt("price") * Integer.parseInt(quantity.get(i).getText());
+				c += price.getInt("price")
+						* Integer.parseInt(quantity.get(i).getText());
 				totalCost.setText("£" + String.valueOf(c));
 				System.out.println("£" + String.valueOf(c));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
+			System.out.println("Wasnt possible to calculate cost");
 		}
 		System.out.println("Cost Calculated = £" + c);
 		return c;
 	}
 
-	public ArrayList<Integer> checkStock(ArrayList<JTextField> ID, ArrayList<JTextField> quantity) {
+	public ArrayList<Integer> checkStock(ArrayList<JTextField> ID,
+			ArrayList<JTextField> quantity) {
 
 		Connection conn = null;
 		Statement stmt = null;
@@ -329,86 +420,146 @@ public class Warehouse extends JFrame {
 
 		System.out.println("Modifying Order");
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
+			conn = DriverManager
+					.getConnection("jdbc:mysql://localhost/wotsdatabase",
+							"root", "NETbuilder");
 			stmt = conn.createStatement();
 
 			for (int i = 0; i < ID.size(); i++) {
 
-				String sql3 = "SELECT  availableStock FROM product WHERE productID = " + ID.get(i).getText();
+				String sql3 = "SELECT  availableStock FROM product WHERE productID = "
+						+ ID.get(i).getText();
 
 				stockLevels = stmt.executeQuery(sql3);
 
 				stockLevels.next();
 
-				q = stockLevels.getInt("availableStock") - Integer.parseInt(quantity.get(i).getText());
+				q = stockLevels.getInt("availableStock")
+						- Integer.parseInt(quantity.get(i).getText());
 				qList.add(q);
 				System.out.println("ID  " + ID.get(i).getText());
 				System.out.println("Quantity  " + quantity.get(i).getText());
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
+			System.out.println("stock not avilable to make order");
 		}
 		System.out.println("Order Modified " + q);
 		return qList;
 	}
 
-	public void updateOrderLineTable(String orderID, ArrayList<JTextField> item, ArrayList<JTextField> quantity2) {
+	public void updateOrderLineTable(String orderID,
+			ArrayList<JTextField> item, ArrayList<JTextField> quantity2) {
 		Connection conn = null;
 		Statement stmt = null;
 
 		System.out.println("Adding products to Order Line Table");
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
+			conn = DriverManager
+					.getConnection("jdbc:mysql://localhost/wotsdatabase",
+							"root", "NETbuilder");
 			stmt = conn.createStatement();
 
 			for (int i = 0; i < item.size(); i++) {
 
-				String values = "VALUES (" + orderID + " , " + item.get(i).getText() + " , "
-						+ quantity2.get(i).getText() + " )";
+				String values = "VALUES (0," + orderID + " , "
+						+ item.get(i).getText() + " , "
+						+ quantity2.get(i).getText() + " , 0)";
 				String sql = "INSERT INTO orderline " + values;
 				stmt.executeUpdate(sql);
-				System.out.println("Products added to Order Line Table");
 			}
+			System.out.println("Products added to Order Line Table");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Products couldnt be added to orderline table");
+		}
+	}
+
+	void allocate(ArrayList<JTextField> item, ArrayList<JTextField> quantity) {
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet stockLevels = null;
+		
+		String[] columnNames = new String[] { "productID", "productName",
+				"availableStock", "allocatedStock", "availablePorousStock",
+				"allocatedPorousStock", "price", "location", "porousNeed" };
+		try {
+			conn = DriverManager
+					.getConnection("jdbc:mysql://localhost/wotsdatabase",
+							"root", "NETbuilder");
+			System.out.println("Attempting to transfer stocks");
+			stmt = conn.createStatement();
+			
+			for (int i = 0; i < item.size(); i++) {
+				
+			String sql3 = "SELECT  availableStock, allocatedStock FROM product WHERE productID = "
+					+ item.get(i).getText();
+
+			stockLevels = stmt.executeQuery(sql3);
+
+			stockLevels.next();
+
+			int q1 = stockLevels.getInt("availableStock")
+					- Integer.parseInt(quantity.get(i).getText());
+			int q2 = stockLevels.getInt("allocatedStock")
+					+ Integer.parseInt(quantity.get(i).getText());
+			
+			String sql4 = "UPDATE product SET availableStock = " + q1 + "AND SET allocatedStock = " + q2;
+			
+			stmt.executeUpdate(sql4);
+			System.out.println("Stocks transfered from avilable to allocated");
+			}
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			// e.printStackTrace();
+			System.out.println("Stocks couldnt be transfered from avilable to allocated");
 		}
 	}
 
 	void modifyProductDetails(Object value, int id2, int col) {
 		Connection conn = null;
 		Statement stmt = null;
-		String[] columnNames = new String[] { "orderID", "orderDate", "orderStatus", "totalCost" };
+		String[] columnNames = new String[] { "orderID", "orderDate",
+				"orderStatus", "totalCost" };
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
+			conn = DriverManager
+					.getConnection("jdbc:mysql://localhost/wotsdatabase",
+							"root", "NETbuilder");
 			System.out.println("Creating statement...");
 			stmt = conn.createStatement();
-			String sql3 = "UPDATE product " + "SET date = 1994 WHERE id in (1, 2)";
+			String sql3 = "UPDATE product "
+					+ "SET date = 1994 WHERE id in (1, 2)";
 			stmt.executeUpdate(sql3);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
+			System.out.println("Couldnt modify product information");
 		}
 	}
 
 	static void modifyOrderDetails(Object value, int id2, int col) {
 		Connection conn = null;
 		Statement stmt = null;
-		String[] columnNames = new String[] { "orderID", "orderDate", "orderStatus", "totalCost" };
+		String[] columnNames = new String[] { "orderID", "orderDate",
+				"orderStatus", "totalCost" };
 
 		System.out.println("Modifying Order");
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
+			conn = DriverManager
+					.getConnection("jdbc:mysql://localhost/wotsdatabase",
+							"root", "NETbuilder");
 			stmt = conn.createStatement();
-			String sql3 = "UPDATE orderdetails " + "SET " + columnNames[col] + " = " + value + " WHERE orderID = "
-					+ id2;
+			String sql3 = "UPDATE orderdetails " + "SET " + columnNames[col]
+					+ " = " + value + " WHERE orderID = " + id2;
 			stmt.executeUpdate(sql3);
+			System.out.println("Order Modified");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
+			System.out.println("Order wasnt created");
 		}
-		System.out.println("Order Modified");
 
 	}
 
@@ -419,16 +570,21 @@ public class Warehouse extends JFrame {
 
 		System.out.println("Creating new Stock Order");
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
+			conn = DriverManager
+					.getConnection("jdbc:mysql://localhost/wotsdatabase",
+							"root", "NETbuilder");
 			stmt = conn.createStatement();
-			String values = "VALUES (" + storeOrderID + " , " + storeOrderDate + " , " + storeOrderStatus + " , "
-					+ storeTotal + " )";
+			String values = "VALUES (" + storeOrderID + ", " + storeOrderDate
+					+ ", 'not active', "
+					+ totalCost.getText().replaceAll("£", "") + ")";
 			String sql = "INSERT INTO orderdetails " + values;
+			System.out.println(sql);
 			stmt.executeUpdate(sql);
 			System.out.println("Stock Order Created");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
+			System.out.println("couldnt create order");
 		}
 
 	};
@@ -437,54 +593,68 @@ public class Warehouse extends JFrame {
 		Connection conn = null;
 		Statement stmt = null;
 
-		System.out.println("Inserting records into the table...");
+		System.out.println("Inserting records into the  product table...");
 
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
+			conn = DriverManager
+					.getConnection("jdbc:mysql://localhost/wotsdatabase",
+							"root", "NETbuilder");
 			stmt = conn.createStatement();
-			String values = "VALUES (" + storeID + ", ' " + storeName + " ', " + storeSL + ", " + storeASL + ", "
-					+ storePSL + ", " + storeAPSL + ", " + storePrice + ", ' " + storeLoc + "' , '" + storePNeed + ")";
+			String values = "VALUES (" + storeID + ", ' " + storeName + " ', "
+					+ storeSL + ", " + storeASL + ", " + storePSL + ", "
+					+ storeAPSL + ", " + storePrice + ", ' " + storeLoc
+					+ "' , '" + storePNeed + " ' )";
 
 			String sql = "INSERT INTO product " + values;
+			System.out.println(sql);
 			stmt.executeUpdate(sql);
-			System.out.println("Inserted records into the table...");
+			System.out.println("Records inserted");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
+			System.out.println("couldnt create an product");
 		}
 	};
 
-	void removeOrder() {
+	void removeOrder(String ID) {
 		Connection conn = null;
 		Statement stmt = null;
 
 		System.out.println("Creating statement...");
 
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
+			conn = DriverManager
+					.getConnection("jdbc:mysql://localhost/wotsdatabase",
+							"root", "NETbuilder");
 			stmt = conn.createStatement();
-			String sql4 = "DELETE FROM OrderDetails " + "WHERE orderID = 1";
+			String sql4 = "DELETE FROM OrderDetails WHERE orderID = "
+					+ ID.toString();
 			stmt.executeUpdate(sql4);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
+			System.out.println("couldnt remove order information");
 		}
 	}
 
-	void removeProduct() {
+	void removeProduct(String ID) {
 		Connection conn = null;
 		Statement stmt = null;
 
 		System.out.println("Creating statement...");
 
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost/wotsdatabase", "root", "NETbuilder");
+			conn = DriverManager
+					.getConnection("jdbc:mysql://localhost/wotsdatabase",
+							"root", "NETbuilder");
 			stmt = conn.createStatement();
-			String sql4 = "DELETE FROM Product " + "WHERE productID = 1";
+			String sql4 = "DELETE FROM Product WHERE productID = "
+					+ ID.toString();
 			stmt.executeUpdate(sql4);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
+			System.out.println("couldnt remove product information");
 		}
 	}
 }

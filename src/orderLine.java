@@ -50,15 +50,6 @@ public class orderLine {
 			}
 
 			System.out.println("No more records");
-/*
-			System.out.print("Enter Product ID:");
-			Scanner in = new Scanner(System.in);
-
-			int j = in.nextInt();
-*/
-			//prod.viewProductDetails(arrayPID);
-
-			// rs.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

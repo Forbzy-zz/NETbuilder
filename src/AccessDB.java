@@ -2,7 +2,7 @@ import java.sql.*;
 
 public class AccessDB {
 	
-	public void accessBD() {
+	public static Connection accessBD() {
 
 		Connection conn = null;
 		Statement stmt = null;
@@ -11,7 +11,7 @@ public class AccessDB {
 			Class.forName("com.mysql.jdbc.Driver");
 			System.out.println("Connecting to database...");
 			conn = DriverManager.getConnection(
-					"jdbc:mysql://localhost/wotsdatabase", "root",
+					"jdbc:mysql://10.50.15.38:3306/wotsdatabase", "root",
 					"NETbuilder");
 
 		} catch (SQLException sqle) {
@@ -32,6 +32,7 @@ public class AccessDB {
 			}
 		}
 		System.out.println("Goodbye!");
+		return conn;
 	}
 
 }

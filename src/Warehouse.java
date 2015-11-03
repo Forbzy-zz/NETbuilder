@@ -319,14 +319,13 @@ public class Warehouse extends JFrame {
 					totalCost.setText("");
 					System.out.println("stock not available");
 				} else {
-allocate(item, quantity);
+                    allocate(item, quantity);
 					updateOrderLineTable(storeOrderID, item, quantity);
 					
+					calculateCost(item, quantity);
 					createOrder();// adds data to orderDetails table in the
 									// database
 
-					calculateCost(item, quantity);
-					
 					tabbedPaneOInfo.remove(order.getJPane());
 					order.viewOrderDetails();
 
@@ -397,15 +396,15 @@ allocate(item, quantity);
 				price.next();
 				c += price.getInt("price")
 						* Integer.parseInt(quantity.get(i).getText());
-				totalCost.setText("£" + String.valueOf(c));
-				System.out.println("£" + String.valueOf(c));
+				totalCost.setText("" + String.valueOf(c));
+				System.out.println("" + String.valueOf(c));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			// e.printStackTrace();
 			System.out.println("Wasnt possible to calculate cost");
 		}
-		System.out.println("Cost Calculated = £" + c);
+		System.out.println("Cost Calculated = " + c);
 		return c;
 	}
 
@@ -476,14 +475,14 @@ allocate(item, quantity);
 		}
 	}
 
+	////accesses the product table and changes the availableStock and 
+	//alloactedStocks fields based on the quantity that the user has 
+	//specified in the new product process.
 	void allocate(ArrayList<JTextField> item, ArrayList<JTextField> quantity) {
 		Connection conn = null;
 		Statement stmt = null;
 		ResultSet stockLevels = null;
 		
-		String[] columnNames = new String[] { "productID", "productName",
-				"availableStock", "allocatedStock", "availablePorousStock",
-				"allocatedPorousStock", "price", "location", "porousNeed" };
 		try {
 			conn = DriverManager
 					.getConnection("jdbc:mysql://localhost/wotsdatabase",
@@ -505,16 +504,19 @@ allocate(item, quantity);
 			int q2 = stockLevels.getInt("allocatedStock")
 					+ Integer.parseInt(quantity.get(i).getText());
 			
-			String sql4 = "UPDATE product SET availableStock = " + q1 + "AND SET allocatedStock = " + q2;
+			String sql4 = "UPDATE product SET availableStock = " + q1 +
+					", allocatedStock = " + q2 + " WHERE productID = " + item.get(i).getText();
 			
+			System.out.println(sql4);
 			stmt.executeUpdate(sql4);
+			
 			System.out.println("Stocks transfered from avilable to allocated");
 			}
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			// e.printStackTrace();
-			System.out.println("Stocks couldnt be transfered from avilable to allocated");
+			 e.printStackTrace();
+			//System.out.println("Stocks couldnt be transfered from avilable to allocated");
 		}
 	}
 
@@ -535,15 +537,19 @@ allocate(item, quantity);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			// e.printStackTrace();
-			System.out.println("Couldnt modify product information");
+			System.out.println("Couldn't modify product information");
 		}
 	}
-
+	
+    //accesses the orderdetails table and changes the value in a field 
+	//using the value the user inputs into the order table no the GUI 
+	//The current field that the user is on is idenitfied using the 'id2' 
+	//which finds the row and 'col' which finds the column.
 	static void modifyOrderDetails(Object value, int id2, int col) {
 		Connection conn = null;
 		Statement stmt = null;
 		String[] columnNames = new String[] { "orderID", "orderDate",
-				"orderStatus", "totalCost" };
+				"orderStatus", "totalCost", "orderType" };
 
 		System.out.println("Modifying Order");
 		try {
@@ -560,9 +566,11 @@ allocate(item, quantity);
 			// e.printStackTrace();
 			System.out.println("Order wasnt created");
 		}
-
 	}
-
+	
+	//accesses the orderdetails table and inserts some records into a new row in my table. 
+		//The String 'values' is made up of string variables that store the data entered
+		//into JTextfields by the user
 	void createOrder() {
 
 		Connection conn = null;
@@ -576,7 +584,8 @@ allocate(item, quantity);
 			stmt = conn.createStatement();
 			String values = "VALUES (" + storeOrderID + ", " + storeOrderDate
 					+ ", 'not active', "
-					+ totalCost.getText().replaceAll("£", "") + ")";
+					+ totalCost.getText() + " " //.replaceAll("", "") 
+			+ ")";
 			String sql = "INSERT INTO orderdetails " + values;
 			System.out.println(sql);
 			stmt.executeUpdate(sql);
@@ -589,6 +598,9 @@ allocate(item, quantity);
 
 	};
 
+	//accesses the product table and inserts some records into a new row in my table. 
+	//The String 'values' is made up of string variables that store the data entered
+	//into JTextfields by the user
 	void createProduct() {
 		Connection conn = null;
 		Statement stmt = null;
@@ -616,6 +628,8 @@ allocate(item, quantity);
 		}
 	};
 
+	//this method accesses the orderdetails table from my database and 
+    //removes a record using the orderID
 	void removeOrder(String ID) {
 		Connection conn = null;
 		Statement stmt = null;
@@ -637,6 +651,8 @@ allocate(item, quantity);
 		}
 	}
 
+	//this method accesses the product table from my database and 
+	//removes a record using the productID
 	void removeProduct(String ID) {
 		Connection conn = null;
 		Statement stmt = null;

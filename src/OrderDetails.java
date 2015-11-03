@@ -7,12 +7,12 @@ import java.util.Scanner;
 
 public class OrderDetails extends Tables {
 
-	private String oid, oD, oS, tC;
+	private String oid, oD, oS, tC, o;
 
 	orderLine Line;
 
 	OrderDetails() {
-		column = new Object[]{ "OrderID ", "Order Date",  "Order Status", "Total Cost",  };
+		column = new Object[]{ "OrderID ", "Order Date",  "Order Status", "Total Cost", "orderType" };
 		Line = new orderLine();
         
 	}
@@ -47,11 +47,12 @@ public class OrderDetails extends Tables {
 				oD = String.valueOf(rs.getInt("orderDate"));
 				oS = rs.getString("orderStatus");
 				tC = String.valueOf(rs.getDouble("totalCost"));
-				
+				o = rs.getString("orderType");
 				System.out.println("ID: " + oid + ", OrderDate: " + oD
-						 + ", Order Status: " + oS + ", TotalCost: £" + tC );
+						 + ", Order Status: " + oS + ", TotalCost: "
+						+ tC + "Order Type:" + o );
 
-				data[count] = new Object[] { oid, oD, oS, tC };
+				data[count] = new Object[] { oid, oD, oS, tC, o };
 				count++;
 			}
 			
@@ -62,22 +63,5 @@ public class OrderDetails extends Tables {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	};
-
-	void findOrder() {
-	}
-
-	boolean checkAvailability() {
-		return false;
-	}
-
-	void calculateTotalPrice() {
-	}
-
-	void updateStock() {
-		
-	};
-
-	void checkOrderType() {
 	};
 }

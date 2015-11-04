@@ -22,6 +22,7 @@ public class Tables {
 	public Tables(){
 	}
 
+	//creates a scrollPane to hold the JTable
 	public JScrollPane createTable() {
 		table = new JTable(data, column) {
 			public Component prepareRenderer(TableCellRenderer r, int rIndex, int cIndex) {
@@ -33,7 +34,8 @@ public class Tables {
 				return super.prepareRenderer(r, rIndex, cIndex);
 			}
 		};
-
+        //checks if a chnage has occured in the table when the user selects the 'Enter'
+		//key on a field and updates the JTable and the orderdetails table in my database
 		table.getModel().addTableModelListener(new TableModelListener() {
 
 			public void tableChanged(TableModelEvent e) {

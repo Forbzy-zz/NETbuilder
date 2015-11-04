@@ -23,7 +23,7 @@ public class AllProductInfo extends Tables {
 				"Allocated Porous Stock ", "Price ", "Location ",
 				"Porous Needed ", };
 	}
-
+////retrieves the information from the product table  in the database in order to populate the JTable
 	void viewProductDetails() {
 		Connection conn = null;
 		Statement stmt = null;

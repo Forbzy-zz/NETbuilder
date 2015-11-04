@@ -16,7 +16,7 @@ public class OrderDetails extends Tables {
 		Line = new orderLine();
         
 	}
-
+////retrieves the information from the orderdetails table  in the database in order to populate the JTable
 	void viewOrderDetails() {
 		Connection conn = null;
 		Statement stmt = null;

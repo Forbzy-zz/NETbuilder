@@ -21,6 +21,8 @@ public class Product extends Tables {
 				"Porous Needed ", "Quantity", "Porous Quantity" };
 	}
 
+	////retrieves the information from the product table and the orderline table  in
+	//the database in order to populate the JTable
 	void viewProductDetails(int OID) {
 		Connection conn = null;
 		Statement stmt = null;
@@ -105,6 +107,7 @@ public class Product extends Tables {
 		}
 	};
 
+	//removes the last character from a string an returns it
 	public String method(String str) {
 		if (null != str && str.length() > 0) {
 			str = str.substring(0, str.length() - 1);

@@ -106,7 +106,7 @@ public class Warehouse extends JFrame {
 		labelPanel3 = new JPanel(new GridLayout(9, 1, 4, 8));
 		textPanel3 = new JPanel(new GridLayout(9, 1, 4, 4));
 
-		//
+		//initailies JLabels for the add/Delete product panel
 		idLabel = new JLabel("ID: ");
 		nameLabel = new JLabel("Name: ");
 		slLabel = new JLabel("Available Stock: ");
@@ -117,7 +117,7 @@ public class Warehouse extends JFrame {
 		locLabel = new JLabel("Location: ");
 		pnLabel = new JLabel("Porous Needed: ");
 
-		//
+		//initailies JLabels for the add/Delete order panel
 		oIDLabel = new JLabel("Order ID: ");
 		oDLabel = new JLabel("Date Ordered: ");
 		tLabel = new JLabel("Total: ");
@@ -157,8 +157,9 @@ public class Warehouse extends JFrame {
 		l5 = new JLabel("");
 		l6 = new JLabel("");
 
-		jTabbedPane.addTab("Add Product", tabbedPaneProduct);
-		jTabbedPane.addTab("Add Order", tabbedPaneOrder);
+		//adds the tabbed panels to the JTabbedPane
+		jTabbedPane.addTab("Add/Delete Product", tabbedPaneProduct);
+		jTabbedPane.addTab("Add/Delete Order", tabbedPaneOrder);
 		jTabbedPane.addTab("Product Information", tabbedPanePInfo);
 		jTabbedPane.addTab("Order Information", tabbedPaneOInfo);
 
@@ -239,6 +240,7 @@ public class Warehouse extends JFrame {
 		mainFrame.setVisible(true);
 		mainFrame.setResizable(false);
 
+		//deletes a product from the product table
 		delProd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				storeID = productID.getText();
@@ -251,6 +253,7 @@ public class Warehouse extends JFrame {
 			}
 		});
 
+		//deletes a stock order from the order details table
 		delOrder.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				storeOrderID = orderID.getText();
@@ -268,6 +271,8 @@ public class Warehouse extends JFrame {
 			}
 		});
 
+		//Using the data entered into the JTextfield on the 'Order Information tab' 
+		//it looks for the product data that is relevant to the order ID
 		findProdButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				oID = inputOID.getText();
@@ -286,6 +291,8 @@ public class Warehouse extends JFrame {
 			}
 		});
 
+		//stores data entered into the JTextfields and stores them in variables 
+		//then adds the product data to the product table.
 		mProductDetailsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				storeID = productID.getText();
@@ -307,6 +314,7 @@ public class Warehouse extends JFrame {
 			}
 		});
 
+		//add stock order data to the table using the stock order process
 		mOrderDetailsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				storeOrderID = orderID.getText();
@@ -315,8 +323,7 @@ public class Warehouse extends JFrame {
 				
                 /*
 				checkStock(item, quantity);
-				if (Collections.min(qList) <= 0) {// if there is a zero in this
-													// array do this
+				if (Collections.min(qList) <= 0) {// if there is a zero in this array do this
 					totalCost.setText("");
 					System.out.println("stock not available");
 				} else {
@@ -326,8 +333,7 @@ public class Warehouse extends JFrame {
 					updateOrderLineTable(storeOrderID, item, quantity);
 					
 					calculateCost(item, quantity);
-					createOrder();// adds data to orderDetails table in the
-									// database
+					createOrder();// adds data to orderDetails table in the database
 
 					tabbedPaneOInfo.remove(order.getJPane());
 					order.viewOrderDetails();
@@ -345,6 +351,7 @@ public class Warehouse extends JFrame {
 			}
 		});
 
+		//adds new item and quantity fields for the stock order process
 		addProd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				labelPanel2.add(new JLabel("Items: "));
@@ -372,6 +379,9 @@ public class Warehouse extends JFrame {
 		Warehouse sd = new Warehouse();
 	}
 
+	//This method calculates the total cost for the items during the stock order process. 
+	//The method takes 2 parameters, 'ID' used to identify item in the product table, and retrieve its price. 
+	//the other parameter is the 'quantity' which is multiplied by the price to find the cost. 
 	public int calculateCost(ArrayList<JTextField> ID,
 			ArrayList<JTextField> quantity) {
 		Connection conn = null;
@@ -408,6 +418,8 @@ public class Warehouse extends JFrame {
 		return c;
 	}
 
+	//this method checks what the available stock level for a specific item in my product table
+	//then it subtracts the quantity the user has specified in the order process and stores the value in 'q'
 	public ArrayList<Integer> checkStock(ArrayList<JTextField> ID,
 			ArrayList<JTextField> quantity) {
 
@@ -448,6 +460,8 @@ public class Warehouse extends JFrame {
 		return qList;
 	}
 
+	//this method adds the data entered during the stock order process to the orderline table in my database
+	//this method takes 3 parameters for the orderID, productID and quantity
 	public void updateOrderLineTable(String orderID,
 			ArrayList<JTextField> item, ArrayList<JTextField> quantity2) {
 		Connection conn = null;
@@ -461,7 +475,6 @@ public class Warehouse extends JFrame {
 			stmt = conn.createStatement();
 
 			for (int i = 0; i < item.size(); i++) {
-
 				String values = "VALUES (0," + orderID + " , "
 						+ item.get(i).getText() + " , "
 						+ quantity2.get(i).getText() + " , 0)";

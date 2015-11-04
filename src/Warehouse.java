@@ -312,14 +312,17 @@ public class Warehouse extends JFrame {
 				storeOrderID = orderID.getText();
 				storeOrderDate = orderDate.getText();
 				storeTotal = totalCost.getText();
-
+				
+                /*
 				checkStock(item, quantity);
 				if (Collections.min(qList) <= 0) {// if there is a zero in this
 													// array do this
 					totalCost.setText("");
 					System.out.println("stock not available");
 				} else {
+					
                     allocate(item, quantity);
+					*/
 					updateOrderLineTable(storeOrderID, item, quantity);
 					
 					calculateCost(item, quantity);
@@ -338,7 +341,7 @@ public class Warehouse extends JFrame {
 					tabbedPaneOInfo.add(prod.createTable());
 					tabbedPaneOInfo.revalidate();
 
-				}
+			//	}
 			}
 		});
 
@@ -366,10 +369,7 @@ public class Warehouse extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		db = new AccessDB();
-		Warehouse sD = new Warehouse();
-		// sD.setVisible(true);
-		db.accessBD();
+		Warehouse sd = new Warehouse();
 	}
 
 	public int calculateCost(ArrayList<JTextField> ID,
@@ -382,9 +382,9 @@ public class Warehouse extends JFrame {
 
 		System.out.println("Calculating cost");
 		try {
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection(
+					"jdbc:mysql://10.50.15.38:3306/wotsdatabase", "root",
+					"NETbuilder");
 			stmt = conn.createStatement();
 
 			for (int i = 0; i < ID.size(); i++) {
@@ -419,9 +419,9 @@ public class Warehouse extends JFrame {
 
 		System.out.println("Modifying Order");
 		try {
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection(
+					"jdbc:mysql://10.50.15.38:3306/wotsdatabase", "root",
+					"NETbuilder");
 			stmt = conn.createStatement();
 
 			for (int i = 0; i < ID.size(); i++) {
@@ -455,9 +455,9 @@ public class Warehouse extends JFrame {
 
 		System.out.println("Adding products to Order Line Table");
 		try {
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection(
+					"jdbc:mysql://10.50.15.38:3306/wotsdatabase", "root",
+					"NETbuilder");
 			stmt = conn.createStatement();
 
 			for (int i = 0; i < item.size(); i++) {
@@ -484,9 +484,9 @@ public class Warehouse extends JFrame {
 		ResultSet stockLevels = null;
 		
 		try {
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection(
+					"jdbc:mysql://10.50.15.38:3306/wotsdatabase", "root",
+					"NETbuilder");
 			System.out.println("Attempting to transfer stocks");
 			stmt = conn.createStatement();
 			
@@ -526,9 +526,9 @@ public class Warehouse extends JFrame {
 		String[] columnNames = new String[] { "orderID", "orderDate",
 				"orderStatus", "totalCost" };
 		try {
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection(
+					"jdbc:mysql://10.50.15.38:3306/wotsdatabase", "root",
+					"NETbuilder");
 			System.out.println("Creating statement...");
 			stmt = conn.createStatement();
 			String sql3 = "UPDATE product "
@@ -553,9 +553,9 @@ public class Warehouse extends JFrame {
 
 		System.out.println("Modifying Order");
 		try {
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection(
+					"jdbc:mysql://10.50.15.38:3306/wotsdatabase", "root",
+					"NETbuilder");
 			stmt = conn.createStatement();
 			String sql3 = "UPDATE orderdetails " + "SET " + columnNames[col]
 					+ " = " + value + " WHERE orderID = " + id2;
@@ -578,13 +578,13 @@ public class Warehouse extends JFrame {
 
 		System.out.println("Creating new Stock Order");
 		try {
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection(
+					"jdbc:mysql://10.50.15.38:3306/wotsdatabase", "root",
+					"NETbuilder");
 			stmt = conn.createStatement();
 			String values = "VALUES (" + storeOrderID + ", " + storeOrderDate
 					+ ", 'not active', "
-					+ totalCost.getText() + " " //.replaceAll("", "") 
+					+ totalCost.getText() + "Stock Order " //.replaceAll("", "") 
 			+ ")";
 			String sql = "INSERT INTO orderdetails " + values;
 			System.out.println(sql);
@@ -608,9 +608,9 @@ public class Warehouse extends JFrame {
 		System.out.println("Inserting records into the  product table...");
 
 		try {
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection(
+					"jdbc:mysql://10.50.15.38:3306/wotsdatabase", "root",
+					"NETbuilder");
 			stmt = conn.createStatement();
 			String values = "VALUES (" + storeID + ", ' " + storeName + " ', "
 					+ storeSL + ", " + storeASL + ", " + storePSL + ", "
@@ -637,9 +637,9 @@ public class Warehouse extends JFrame {
 		System.out.println("Creating statement...");
 
 		try {
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection(
+					"jdbc:mysql://10.50.15.38:3306/wotsdatabase", "root",
+					"NETbuilder");
 			stmt = conn.createStatement();
 			String sql4 = "DELETE FROM OrderDetails WHERE orderID = "
 					+ ID.toString();
@@ -660,9 +660,9 @@ public class Warehouse extends JFrame {
 		System.out.println("Creating statement...");
 
 		try {
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection(
+					"jdbc:mysql://10.50.15.38:3306/wotsdatabase", "root",
+					"NETbuilder");
 			stmt = conn.createStatement();
 			String sql4 = "DELETE FROM Product WHERE productID = "
 					+ ID.toString();

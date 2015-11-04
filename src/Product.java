@@ -28,9 +28,9 @@ public class Product extends Tables {
 		ResultSet rs2 = null;
 		try {
 			System.out.println("Creating statement...");
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection(
+					"jdbc:mysql://10.50.15.38:3306/wotsdatabase", "root",
+					"NETbuilder");
 
 			stmt = conn.createStatement();
 			String sql1 = "SELECT productID, quantity, porousQuantity FROM orderline WHERE orderID = "

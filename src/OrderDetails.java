@@ -24,9 +24,9 @@ public class OrderDetails extends Tables {
 		
 		try {
 			System.out.println("Creating statement...");
-			conn = DriverManager
-					.getConnection("jdbc:mysql://localhost/wotsdatabase",
-							"root", "NETbuilder");
+			conn = DriverManager.getConnection(
+					"jdbc:mysql://10.50.15.38:3306/wotsdatabase", "root",
+					"NETbuilder");
 			stmt = conn.createStatement();
 			String sql2 = "SELECT * FROM orderDetails";
 
